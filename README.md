@@ -1,4 +1,4 @@
-To get started fork this project on github, or put it on some other service (make it public),, and regularly commit the changes you make through the development process.
+To get started fork this project on github, or put it on some other service (make it public), and regularly commit the changes you make through the development process.
 
  There are 3 files to get you started
 
