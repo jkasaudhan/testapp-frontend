@@ -1,6 +1,9 @@
 $(document).ready(function() {
-    var BASE_URL = 'http://127.0.0.1:5000/api/v1';
+    var BASE_URL = 'http://127.0.0.1:5000';
     
+    //Initially display default user list using templating engine syntax {...} which is used in the home.html view so, we don't have to do anything here.
+    
+    //If user starts typing on search text box display filtered information
     $('#system-search').keyup(function(event) {
         var keyword = $('#system-search').val();
         if(!keyword) {
@@ -42,13 +45,13 @@ $(document).ready(function() {
         
         if(!keyword) {
             //If search keyword is not present, use default sort endpoint
-            var endpoint = BASE_URL+'/sort/?sort_by='+ sortByParam +'&order='+ orderByParam;
+            var endpoint = BASE_URL+'/api/v1/sort/?sort_by='+ sortByParam +'&order='+ orderByParam;
             $.get(endpoint, function(response) {
                 renderOnView(response.results);
             });
         } else {
             //Get data from backend based on the search key word
-            var endpoint = BASE_URL+'/search/?query='+ keyword + '&sort_by=' + sortByParam +'&order='+ orderByParam;
+            var endpoint = BASE_URL+'/api/v1/search/?query='+ keyword + '&sort_by=' + sortByParam +'&order='+ orderByParam;
             $.get(endpoint, function(response) {
                 renderOnView(response.results);
             });
@@ -60,7 +63,7 @@ $(document).ready(function() {
         if(data.length !== 0) {
             $('.user-table tbody').empty();
             data.forEach(user => {
-                var row =   $('<tr><td>'+ user.id+'</td>' + 
+                var row =   $('<tr class="user-row" data-id="'+ user.id +'"><td>'+ user.id+'</td>' + 
                             '<td>'+ user.first_name +'</td>' +
                             '<td>' + user.last_name + '</td>' +
                             '<td>' + user.gender + '</td>' +
@@ -87,4 +90,12 @@ $(document).ready(function() {
         $('#sel2').val('asc');
         searchAndRender();
     }
+    
+    //When user clicks on any row redirect them to user detail page view: (using event delegation)
+    $('.user-table tbody').click(function(event) {
+        var userID = $(event.target).parent().first().data('id');
+        if(userID) {
+            window.location = BASE_URL+'/view/' + userID;
+        }
+    });
 });
