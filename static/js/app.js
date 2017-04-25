@@ -1,5 +1,6 @@
 $(document).ready(function() {
     var BASE_URL = 'http://127.0.0.1:5000';
+    var userData = [];
     
     //Initially display default user list using templating engine syntax {...} which is used in the home.html view so, we don't have to do anything here.
     
@@ -12,6 +13,7 @@ $(document).ready(function() {
         } else if(!validateSearchKey(keyword)) {
             return;
         }
+        //Eventhough function searchAndRender() is called before it is defined, we can execute this function in JS because of hoisting.
         searchAndRender();
     });
     
@@ -47,14 +49,26 @@ $(document).ready(function() {
             //If search keyword is not present, use default sort endpoint
             var endpoint = BASE_URL+'/api/v1/sort/?sort_by='+ sortByParam +'&order='+ orderByParam;
             $.get(endpoint, function(response) {
+                userData = response.results;
                 renderOnView(response.results);
             });
         } else {
-            //Get data from backend based on the search key word
-            var endpoint = BASE_URL+'/api/v1/search/?query='+ keyword + '&sort_by=' + sortByParam +'&order='+ orderByParam;
-            $.get(endpoint, function(response) {
-                renderOnView(response.results);
-            });
+            if(userData.length === 0) {
+                //Initially get data from backend when user starts typing
+                //Get data from backend based on the search key word
+                var endpoint = BASE_URL+'/api/v1/search/?query='+ keyword + '&sort_by=' + sortByParam +'&order='+ orderByParam;
+                $.get(endpoint, function(response) {
+                    userData = response.results;
+                    renderOnView(response.results);
+                });
+            }else {
+                //When we have a list of users from the backed we don't have to send several request to server.
+                //Rather we can save in a userData array and start filtering from userData object repeatedly.
+                optimizeSearchAndGetData(function(filteredUsers) {
+                    userData = filteredUsers;
+                    renderOnView(filteredUsers);
+                });
+            }
         }        
     }
 
@@ -88,6 +102,7 @@ $(document).ready(function() {
     var reset = function() {
         $('#sel1').val('id');
         $('#sel2').val('asc');
+        userData = [];
         searchAndRender();
     }
     
@@ -98,4 +113,20 @@ $(document).ready(function() {
             window.location = BASE_URL+'/view/' + userID;
         }
     });
+    
+    //Optimizing search so that client does not hit the server on each charater typed in a search field.
+    //Initially get the data from the server when first valid character is pressed and try to filter from the //result data returned from the server as we keep on typing. Repeteadly filter from the result data.
+    
+    var optimizeSearchAndGetData = function(callback) {
+        var keyword = $('#system-search').val();
+
+        var filteredData = userData.filter(user => {
+            return ((user.first_name.indexOf(keyword) !== -1) ||
+                    (user.last_name.indexOf(keyword) !== -1) ||
+                    (user.email.indexOf(keyword) !== -1) ||
+                    (user.gender.indexOf(keyword) !== -1) ||
+                    (user.job_title.indexOf(keyword) !== -1));
+        });
+        callback(filteredData);
+    }
 });
