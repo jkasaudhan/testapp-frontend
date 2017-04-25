@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="test-app">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -26,10 +26,10 @@
 
 <body>
 
-<div class="container">
+<div class="container" ng-controller="UserController">
 
     <div class="input-group">
-        <input class="form-control" id="system-search"  name="query" placeholder="Search for" value="" required>
+        <input ng-model="keyword" ng-change="onSearchFieldChange()" class="form-control" id="system-search"  name="query" placeholder="Search for" value="" required>
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-default search-btn"><i
                                 class="glyphicon glyphicon-search"></i></button>
@@ -67,9 +67,17 @@
             <th>Job Title</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody ng-if="userData.length !== 0">
+        <!--    <tr ng-repeat="user in userData | filter:keyword" >
+ 
+            </tr>     
+        -->      
+        </tbody>
+        
+        <tbody ng-if="userData.length === 0">
+            
         {% for user in users %}
-            <tr data-id="{{ user.id }}">
+            <tr data-id="{{ user.id }}" >
 
                 <td>{{ user.id }}</td>
                 <td>{{ user.first_name }}</td>
@@ -91,7 +99,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
 <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-<script src="{{url_for('static', filename='js/app.js')}}"></script>
+<script src="{{url_for('static', filename='js/angular.min.js')}}"></script>
+<script src="{{url_for('static', filename='js/angular-app.js')}}"></script>
+    
     
 </body>
 </html>
